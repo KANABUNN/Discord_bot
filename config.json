@@ -1,0 +1,14 @@
+{
+	"Server":	{
+		"Guild_ID": "***",
+		"Role_ID":"***",
+		"Role_ID2" : "***",
+		"TxCh_ID":"***",
+		"AdminCh_ID" : "***",
+		"VC_ID": "***"
+	},
+	"Bot": {
+		"Token": "***",
+		"Application_ID": "***"
+	}
+}
