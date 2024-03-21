@@ -1,4 +1,4 @@
-const { Client, GatewayIntentBits, ButtonBuilder, ButtonStyle, ActionRowBuilder, PermissionBitField } = require('discord.js');
+const { Client, GatewayIntentBits, ButtonBuilder, ButtonStyle, ActionRowBuilder, PermissionBitField, ActivityType } = require('discord.js');
 const { Server, Bot } = require('./config.json');
 const client = new Client({
     intents: [
@@ -13,8 +13,14 @@ const BUTTON_ID_3 = BUTTON_ID_PREFIX + "kick"
 const BUTTON_ID_4 = BUTTON_ID_PREFIX + "give.guest"
 let inMember
 
-client.on('ready', () => {
-	client.user.setActivity('Destiny 2');
+client.once('ready', () => {
+	client.user.setPresence({
+		activities:[{
+			name: "Destiny2",
+			type: ActivityType.Competing,
+		}],
+		status: "online",
+	});
     console.log(`起動しました。`);
 });
 
