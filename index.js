@@ -1,9 +1,19 @@
-const { Client, GatewayIntentBits, ButtonBuilder, ButtonStyle, ActionRowBuilder, PermissionBitField, ActivityType } = require('discord.js');
+const Token = process.env.DCTOKEN
+const {
+	Client,
+	GatewayIntentBits,
+	ButtonBuilder,
+	ButtonStyle,
+	ActionRowBuilder,
+	PermissionBitField,
+	ActivityType
+	} = require('discord.js');
 const { Server, Bot } = require('./config.json');
 const client = new Client({
     intents: [
 		GatewayIntentBits.Guilds,
-		GatewayIntentBits.GuildMembers
+		GatewayIntentBits.GuildMembers,
+		GatewayIntentBits.GuildMessages
     ]
 });
 const BUTTON_ID_PREFIX = "role_"
@@ -16,13 +26,28 @@ let inMember
 client.once('ready', () => {
 	client.user.setPresence({
 		activities:[{
-			name: "Destiny2",
-			type: ActivityType.Competing,
+			name: "Destiny 2",
+			type: ActivityType.Playing,
 		}],
 		status: "online",
 	});
     console.log(`起動しました。`);
 });
+
+client.on('messageCreate', async message => {
+	return;
+	console.log(message);
+	if (message.author.bot) return;
+	if (!message.content.startsWith('!')) return;
+	if (message.includes('gr', 1)) {
+		let member = message.substring(4);
+		let Member = guild.members.fetch({query:member});
+		Member.roles.add(Server.Role_ID);
+		client.channels.cache.get(Server.AdminCh_ID)
+			.send(member + 'に追加権限を与えました。');
+	}
+});
+
 
 client.on('guildMemberAdd' , async member => {
 	console.log(`${member.guild.name} に ${member.displayName} が参加しました。`);
@@ -52,7 +77,7 @@ async function ButtonCreate(ChannelID, RoleID){
 						.setStyle(ButtonStyle.Secondary)
 						.setLabel("ゲストのまま"),
 					new ButtonBuilder()
-						.setCustomID(BUTTON_ID_4)
+						.setCustomId(BUTTON_ID_4)
 						.setStyle(ButtonStyle.Secondary)
 						.setLabel("botの権限を与える"),
 					new ButtonBuilder()
@@ -76,7 +101,7 @@ client.on("interactionCreate", async interaction => {
 			console.error(error)
 		}
 	} else if (interaction.customId === BUTTON_ID_2) {
-		return interaction.reply({content: `${inMember.displayName}さんに権限を与えませんでした。`})
+		 interaction.reply({content: `${inMember.displayName}さんに権限を与えませんでした。`})
 		try {
 			return inMember.roles.remove(Server.Role_ID)
 		} catch (error) {
@@ -97,5 +122,10 @@ client.on("interactionCreate", async interaction => {
 	}
 })
 
+client.on('guildMemberRemove', rmember => {
+	let Dates = new Date()
+	console.log(Dates + ` 頃に${rmember.displayName} が ${rmember.guild.name} から脱退しました。`)
+})
+
 // DiscordにBotをログインさせる
-client.login(Bot.Token);
+client.login(Token);
