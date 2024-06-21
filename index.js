@@ -92,33 +92,21 @@ async function ButtonCreate(ChannelID, RoleID){
 client.on("interactionCreate", async interaction => {
 	if (!interaction.isButton()) return
 	if (!interaction.customId.startsWith(BUTTON_ID_PREFIX)) return
+	try {
 	if (interaction.customId === BUTTON_ID_1) {
-		try {
-			await inMember.roles.add(Server.Role_ID)
-			interaction.reply({content: `${inMember.displayName}さんに権限を付与しました。`})
-			return welmsg(inMember)
-		} catch (error) {
-			console.error(error)
+		await inMember.roles.add(Server.Role_ID)
+		interaction.reply({content: `${interaction.user}が${inMember.displayName}さんに権限を付与しました。`})
+		return welmsg(inMember)
+		} else if (interaction.customId === BUTTON_ID_2) {
+		 interaction.reply({content: `特に操作は実行されませんでした。`})
+		return inMember.roles.remove(Server.Role_ID)
+		} else if (interaction.customId === BUTTON_ID_3) {
+		return inMember.kick()
+		} else if (interaction.customId === BUTTON_ID_4) {
+		return inMember.roles.add(Server.Role_ID2)
 		}
-	} else if (interaction.customId === BUTTON_ID_2) {
-		 interaction.reply({content: `${inMember.displayName}さんに権限を与えませんでした。`})
-		try {
-			return inMember.roles.remove(Server.Role_ID)
-		} catch (error) {
-			console.log(error)
-		}
-	} else if (interaction.customId === BUTTON_ID_3) {
-		try {
-			return inMember.kick()
-		} catch (error) {
-			console.error(error)
-		}
-	} else if (interaction.customId === BUTTON_ID_4) {
-		try {
-			return inMember.roles.add(Server.Role_ID2)
-		} catch {
-			console.error(error)
-		}
+	} catch {
+		console.log(error);
 	}
 })
 
