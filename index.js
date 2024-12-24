@@ -6,7 +6,8 @@ const {
 	ButtonStyle,
 	ActionRowBuilder,
 	PermissionBitField,
-	ActivityType
+	ActivityType,
+	CommandInteractionOptionResolver
 	} = require('discord.js');
 const { Server, Bot } = require('./config.json');
 const client = new Client({
@@ -16,11 +17,11 @@ const client = new Client({
 		GatewayIntentBits.GuildMessages
     ]
 });
-const BUTTON_ID_PREFIX = "role_"
-const BUTTON_ID_1 = BUTTON_ID_PREFIX + "give.member"
-const BUTTON_ID_2 = BUTTON_ID_PREFIX + "still.guest"
-const BUTTON_ID_3 = BUTTON_ID_PREFIX + "kick"
-const BUTTON_ID_4 = BUTTON_ID_PREFIX + "give.guest"
+const Pre = "role_"
+const BUTTON_ID_1 = Pre + "give.member"
+const BUTTON_ID_2 = Pre + "still.guest"
+const BUTTON_ID_3 = Pre + "kick"
+const BUTTON_ID_4 = Pre + "give.guest"
 let inMember
 
 client.once('ready', () => {
@@ -32,28 +33,22 @@ client.once('ready', () => {
 		status: "online",
 	});
     console.log(`起動しました。`);
-});
-
-client.on('messageCreate', async message => {
-	return;
-	console.log(message);
-	if (message.author.bot) return;
-	if (!message.content.startsWith('!')) return;
-	if (message.includes('gr', 1)) {
-		let member = message.substring(4);
-		let Member = guild.members.fetch({query:member});
-		Member.roles.add(Server.Role_ID);
-		client.channels.cache.get(Server.AdminCh_ID)
-			.send(member + 'に追加権限を与えました。');
-	}
-});
-
+	startmsg();
+	});
 
 client.on('guildMemberAdd' , async member => {
 	console.log(`${member.guild.name} に ${member.displayName} が参加しました。`);
+	await member.roles.add(Server.Temp_Role);
 	ButtonCreate(Server.AdminCh_ID, Server.Role_ID)
 	inMember = member
 });
+
+async function startmsg(){
+	return;
+	client.channels.cache
+		.get("1318817858561642570")
+		.send(`ただいまユーザーの認証中です．少々お待ちください．\nもし24時間経っても状態が変化しない場合、お手数ですが右記のメンバーの誰かへ連絡をお願いします．`);
+}
 
 async function welmsg(member){
 	client.channels.cache
@@ -63,7 +58,7 @@ async function welmsg(member){
 
 async function ButtonCreate(ChannelID, RoleID){
 	const channel = await client.channels.fetch(ChannelID)
-	channel.send({
+	await channel.send({
 		content: `@everyone\nサーバーに${inMember.displayName}さんがいらっしゃいました`,
 		components: [
 			new ActionRowBuilder()
@@ -75,7 +70,7 @@ async function ButtonCreate(ChannelID, RoleID){
 					new ButtonBuilder()
 						.setCustomId(BUTTON_ID_2)
 						.setStyle(ButtonStyle.Secondary)
-						.setLabel("ゲストのまま"),
+						.setLabel("ゲスト権限を与える"),
 					new ButtonBuilder()
 						.setCustomId(BUTTON_ID_4)
 						.setStyle(ButtonStyle.Secondary)
@@ -87,33 +82,37 @@ async function ButtonCreate(ChannelID, RoleID){
 				]),
 		],
 	})
-}
+};
 
 client.on("interactionCreate", async interaction => {
 	if (!interaction.isButton()) return
 	if (!interaction.customId.startsWith(BUTTON_ID_PREFIX)) return
 	try {
-	if (interaction.customId === BUTTON_ID_1) {
-		await inMember.roles.add(Server.Role_ID)
-		interaction.reply({content: `${interaction.user}が${inMember.displayName}さんに権限を付与しました。`})
-		return welmsg(inMember)
+		if (interaction.customId === BUTTON_ID_1) {
+			await inMember.roles.add(Server.Main_Role);
+			await inMember.roles.remove(Server.Temp_Role);
+			interaction.reply({content: `${interaction.member.displayName}が${inMember.displayName}さんに権限を付与しました．`});
+			return welmsg(inMember)
 		} else if (interaction.customId === BUTTON_ID_2) {
-		 interaction.reply({content: `特に操作は実行されませんでした。`})
-		return inMember.roles.remove(Server.Role_ID)
+			interaction.reply({content: `${interaction.member.displayName}が${inMember.displayName}さんにゲスト用の権限を与えました．`});
+			await inMember.roles.remove(Server.Temp_Role);
+			return inMember.roles.add(Server.Guest_Role)
 		} else if (interaction.customId === BUTTON_ID_3) {
-		return inMember.kick()
+			interaction.reply({content: `${interaction.member.displayName}が${inMember.displayName}さんをキックしました．`})
+			return inMember.kick()
 		} else if (interaction.customId === BUTTON_ID_4) {
-		return inMember.roles.add(Server.Role_ID2)
+			interaction.reply({content: `${interaction.member.displayName}が${inMember.displayName}にボット用のロールを付与しました．`});
+			await inMember.roles.remove(Server.Temp_Role);
+			return inMember.roles.add(Server.Bot_Role)
 		}
-	} catch {
-		console.log(error);
+	} catch(error) {
+		console.error(error)
 	}
-})
+});
 
-client.on('guildMemberRemove', rmember => {
+client.on('guildMemberRemove', async rmember => {
 	let Dates = new Date()
 	console.log(Dates + ` 頃に${rmember.displayName} が ${rmember.guild.name} から脱退しました。`)
-})
+});
 
-// DiscordにBotをログインさせる
 client.login(Token);
