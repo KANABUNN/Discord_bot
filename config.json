@@ -1,8 +1,10 @@
 {
 	"Server": {
 		"Guild_ID": "***",
-		"Role_ID":"***",
-		"Role_ID2" : "***",
+		"Main_Role": "***",
+		"Bot_Role": "***",
+		"Guest_Role": "***",
+		"Temp_Role": "***",
 		"TxCh_ID":"***",
 		"AdminCh_ID" : "***",
 		"VC_ID": "***"
