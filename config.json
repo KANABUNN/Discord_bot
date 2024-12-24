@@ -5,8 +5,8 @@
 		"Bot_Role": "***",
 		"Guest_Role": "***",
 		"Temp_Role": "***",
-		"TxCh_ID":"***",
-		"AdminCh_ID" : "***",
+		"TxCh_ID": "***",
+		"AdminCh_ID": "***",
 		"VC_ID": "***"
 	},
 	"Bot": {
