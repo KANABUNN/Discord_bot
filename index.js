@@ -43,13 +43,6 @@ client.on('guildMemberAdd' , async member => {
 	inMember = member
 });
 
-async function startmsg(){
-	return;
-	client.channels.cache
-		.get("1318817858561642570")
-		.send(`ただいまユーザーの認証中です．少々お待ちください．\nもし24時間経っても状態が変化しない場合、お手数ですが右記のメンバーの誰かへ連絡をお願いします．`);
-}
-
 async function welmsg(member){
 	client.channels.cache
 		.get(Server.TxCh_ID)
